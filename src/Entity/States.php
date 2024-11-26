@@ -24,11 +24,11 @@ class States
      * @var Collection<int, Orders>
      */
     #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: 'states')]
-    private Collection $user;
+    private Collection $orders;
 
     public function __construct()
     {
-        $this->user = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -51,27 +51,27 @@ class States
     /**
      * @return Collection<int, Orders>
      */
-    public function getUser(): Collection
+    public function getOrders(): Collection
     {
-        return $this->user;
+        return $this->orders;
     }
 
-    public function addUser(Orders $user): static
+    public function addOrder(Orders $order): static
     {
-        if (!$this->user->contains($user)) {
-            $this->user->add($user);
-            $user->setStates($this);
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setStates($this);
         }
 
         return $this;
     }
 
-    public function removeUser(Orders $user): static
+    public function removeOrder(Orders $order): static
     {
-        if ($this->user->removeElement($user)) {
+        if ($this->orders->removeElement($order)) {
             // set the owning side to null (unless already changed)
-            if ($user->getStates() === $this) {
-                $user->setStates(null);
+            if ($order->getStates() === $this) {
+                $order->setStates(null);
             }
         }
 

@@ -20,7 +20,7 @@ class Orders
     #[ORM\Column]
     private ?\DateTimeImmutable $isCreatedAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'user')]
+    #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: false)]
     private ?States $states = null;
 

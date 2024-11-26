@@ -2,61 +2,91 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
-
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+#[ApiResource(
+    normalizationContext:['groups' => ['user:read']],
+    denormalizationContext:['groups' => ['user:write']],
+    operations: [
+        
+        
+        new Post(
+            description: 'Enregistre un nouveau client.',
+            uriTemplate: '/api/user/register',
+            name:'app_user_register',
+        ),
+       
+    ]
+)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read','user:write'])]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['user:read','user:write'])]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['user:write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups(['user:read','user:write'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups(['user:read','user:write'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read','user:write'])]
     private ?string $adress = null;
 
     #[ORM\Column(length: 10)]
+    #[Groups(['user:read','user:write'])]
     private ?string $phone = null;
 
     #[ORM\Column]
+    #[Groups(['user:read','user:write'])]
     private ?\DateTimeImmutable $isCreatedAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read','user:write'])]
     private ?string $comment = null;
 
     /**
      * @var Collection<int, Orders>
      */
     #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: 'user')]
+    #[Groups(['user:read','user:write'])]
     private Collection $orders;
+
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cities $Cities = null;
 
     public function __construct()
     {
@@ -236,6 +266,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $order->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCities(): ?Cities
+    {
+        return $this->Cities;
+    }
+
+    public function setCities(?Cities $Cities): static
+    {
+        $this->Cities = $Cities;
 
         return $this;
     }

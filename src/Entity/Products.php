@@ -2,53 +2,74 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Get;
+use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ProductsRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductsRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext:['groups' => ['products:read']],
+    denormalizationContext:['groups' => ['products:write']],
+    operations: [
+         new Get(
+             uriTemplate: '/api/products/listing',
+             name:'app_visitor_products_listing'
+         )
+    ]
+)]
 class Products
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["products:read", "products:write"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 30)]
+    #[Groups(["products:read", "products:write"])]
     private ?string $title = null;
 
     #[ORM\Column(length: 6)]
+    #[Groups(["products:read", "products:write"])]
     private ?string $price = null;
 
     #[ORM\Column]
+    #[Groups(["products:read", "products:write"])]
     private ?bool $discount = null;
 
     #[ORM\Column(length: 6, nullable: true)]
+    #[Groups(["products:read", "products:write"])]
     private ?string $priceDiscount = null;
 
     #[ORM\Column(length: 200, nullable: true)]
+    #[Groups(["products:read", "products:write"])]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Groups(["products:read", "products:write"])]
     private ?bool $isActivied = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["products:read", "products:write"])]
     private ?Categories $categories = null;
 
     /**
      * @var Collection<int, MediaObject>
      */
     #[ORM\OneToMany(targetEntity: MediaObject::class, mappedBy: 'products')]
+    #[Groups(["products:read", "products:write"])]
     private Collection $mediaObjects;
 
     /**
      * @var Collection<int, RowsOrder>
      */
     #[ORM\OneToMany(targetEntity: RowsOrder::class, mappedBy: 'products')]
+    #[Groups(["products:read", "products:write"])]
     private Collection $rowsOrders;
 
     public function __construct()

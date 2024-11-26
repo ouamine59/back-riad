@@ -15,8 +15,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
     normalizationContext:['groups' => ['user:read']],
     denormalizationContext:['groups' => ['user:write']],
     operations: [
-        
-        
         new Post(
             description: 'Enregistre un nouveau client.',
             uriTemplate: '/api/user/register',

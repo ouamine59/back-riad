@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\OrdersRepository;
@@ -30,6 +31,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
            security: "is_granted('ROLE_CLIENT')",
            uriTemplate: '/api/orders/ddelete/{idUser}/{idOrder}',
            name:'app_client_orders_delete'
+       )
+       ,
+        new Post(
+           security: "is_granted('ROLE_CLIENT')",
+           uriTemplate: '/api/orders/create/{idUser}',
+           name:'app_client_orders_create'
        )
     ]
 )]

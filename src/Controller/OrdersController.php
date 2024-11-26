@@ -2,17 +2,24 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Orders;
+use App\Entity\RowsOrder;
+use DateTimeImmutable;
+use App\Repository\UserRepository;
 use App\Repository\OrdersRepository;
+use App\Repository\StatesRepository;
 use App\Repository\ProductsRepository;
 use App\Repository\RowsOrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 #[Route('/api/orders')]
 class OrdersController extends AbstractController
 {
@@ -164,6 +171,89 @@ public function deleteByClient(
                 Response::HTTP_BAD_REQUEST
             );
         }
+    } catch (\Exception $e) {
+        return new JsonResponse(
+            ['result' => 'Database error', 'error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
+    }
+}
+
+#[Route('/create/{idUser}', name: 'app_client_orders_create', methods: ["POST"])]
+#[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
+public function create(
+    int $idUser,
+
+    
+    EntityManagerInterface $entityManager,
+    ProductsRepository $productsRepository,
+    UserRepository $userRepository,
+    Request $request,
+    StatesRepository $statesRepository,
+    ValidatorInterface $validator
+): Response {
+    try {
+       $user = $userRepository->findOneBy(['id' => $idUser]);
+       
+        if (!$user) {
+            return new JsonResponse(
+                ['result' => 'User not found'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $data = $request->getContent();
+        $jsonData = json_decode($data, true);
+
+            // Vérifier la présence des clés nécessaires dans les données JSON
+            if (!$jsonData || !isset($jsonData['products'])) {
+                return new JsonResponse(
+                    ['result' => 'Invalid data provided'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+      
+           $order = new Orders(); 
+           $order->setUser($user) ;
+           $states = $statesRepository->find(1);
+           $order->setStates($states) ; 
+           $order->setIsCreatedAt(new DateTimeImmutable());
+            //enregistrememnt des produits
+            foreach($jsonData['products'] as $product){
+                
+                $prod = $productsRepository->find($product['productsId']);
+                if($prod==null){
+                    return new JsonResponse(
+                        ['result' => 'Product none available'],
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+                $row = new RowsOrder();
+                $row->setOrders($order);
+                $row->setProducts($prod);
+                $row->setAmount($product['amount']);
+                $row->setPrice($prod->getPrice());
+            }
+
+           $errors = $validator->validate($order);
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[] = $error->getMessage();
+                }
+
+                return new JsonResponse(
+                    ['result' => 'Validation failed', 'errors' => $errorMessages],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $entityManager->persist($order);
+            $entityManager->persist($row);
+            $entityManager->flush();
+            return new JsonResponse(
+                ['result' => 'Order registered successfully'],
+                Response::HTTP_CREATED
+            );
+        
     } catch (\Exception $e) {
         return new JsonResponse(
             ['result' => 'Database error', 'error' => $e->getMessage()],

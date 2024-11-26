@@ -35,6 +35,8 @@ security:
         - { path: ^/api/orders/listing/:idUser, roles: ROLE_CLIENT }
         - { path: ^/api/orders/detail/:idUser/:idOrder, roles: ROLE_CLIENT }
         - { path: ^/api/orders/delete/:idUser/:idOrder, roles: ROLE_CLIENT }
+        - { path: ^/api/orders/create/:idUser, roles: ROLE_CLIENT }
+        
         - { path: ^/api/user/update/:id, roles: ROLE_CLIENT }
 
 

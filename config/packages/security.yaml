@@ -31,6 +31,10 @@ security:
       jwt: ~
 
   access_control:
+  #CLIENT
+        - { path: ^/api/orders/listing/:idUser, roles: ROLE_CLIENT }
+
+
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/docs, roles: PUBLIC_ACCESS }
         - { path: ^/auth, roles: PUBLIC_ACCESS }

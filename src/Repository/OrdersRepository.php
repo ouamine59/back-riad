@@ -15,7 +15,17 @@ class OrdersRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Orders::class);
     }
-
+    public function findAllByIdUser($idUser): array
+    {
+    return $this->createQueryBuilder('a')
+        ->select('NEW App\\DTO\\OrdersClientListingDTO(a.id, s.states, u.id, a.isCreatedAt)')
+        ->innerJoin('a.user', 'u')
+        ->innerJoin('a.states', 's')
+        ->where('a.user = :id')
+        ->setParameter('id', $idUser)
+        ->getQuery()
+        ->getResult();
+    }
     //    /**
     //     * @return Orders[] Returns an array of Orders objects
     //     */

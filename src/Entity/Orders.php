@@ -2,35 +2,52 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use App\Repository\OrdersRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Get;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\OrdersRepository;
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: OrdersRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext:['groups' => ['orders:read']],
+    denormalizationContext:['groups' => ['orders:write']],
+    operations: [
+         new Get(
+            security: "is_granted('ROLE_CLIENT')",
+            uriTemplate: '/api/orders/listing/{idUser}',
+            name:'app_client_orders_listing'
+         )
+    ]
+)]
 class Orders
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["orders:read"])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(["orders:read", "orders:write"])]
     private ?\DateTimeImmutable $isCreatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["orders:read", "orders:write"])]
     private ?States $states = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["orders:read", "orders:write"])]
     private ?User $user = null;
 
     /**
      * @var Collection<int, RowsOrder>
      */
+    #[Groups(["orders:read", "orders:write"])]
     #[ORM\OneToMany(targetEntity: RowsOrder::class, mappedBy: 'orders')]
     private Collection $rowsOrders;
 

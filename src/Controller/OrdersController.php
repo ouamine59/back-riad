@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Orders;
 use App\Repository\OrdersRepository;
 use App\Repository\ProductsRepository;
 use App\Repository\RowsOrderRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -111,6 +113,57 @@ public function detailClient(
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
+    } catch (\Exception $e) {
+        return new JsonResponse(
+            ['result' => 'Database error', 'error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
+    }
+}
+
+
+#[Route('/delete/{idUser}/{idOrder}', name: 'app_client_orders_delete', methods: ["DELETE"])]
+#[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
+public function deleteByClient(
+    int $idUser,
+    int $idOrder,
+    OrdersRepository $ordersRepository,
+    EntityManagerInterface $entityManager,
+    RowsOrderRepository $rowsOrderRepository
+): Response {
+    try {
+       $order = $ordersRepository->findOneBy(['id' => $idOrder, 'user' => $idUser]);
+
+        if (!$order) {
+            return new JsonResponse(
+                ['result' => 'Order not found'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $createdAt = $order->getIsCreatedAt();
+        $currentDate = new \DateTime();
+        $interval = $createdAt->diff($currentDate);
+
+        if ($interval->days <= 14) {
+            $rowsOrders = $rowsOrderRepository->findBy(['orders' => $idOrder]);
+
+            foreach ($rowsOrders as $rowOrder) {
+                $order->removeRowsOrder($rowOrder);
+                $entityManager->remove($rowOrder);
+            }
+            $entityManager->remove($order);
+            $entityManager->flush();
+
+            return new JsonResponse(
+                ['result' => 'Order deleted successfully'],
+                Response::HTTP_OK
+            );
+        } else {
+            return new JsonResponse(
+                ['result' => 'Order cannot be deleted. It is older than 14 days.'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
     } catch (\Exception $e) {
         return new JsonResponse(
             ['result' => 'Database error', 'error' => $e->getMessage()],

@@ -33,6 +33,7 @@ security:
   access_control:
   #CLIENT
         - { path: ^/api/orders/listing/:idUser, roles: ROLE_CLIENT }
+        - { path: ^/api/orders/detail/:idUser/:idOrder, roles: ROLE_CLIENT }
 
 
         - { path: ^/$, roles: PUBLIC_ACCESS }

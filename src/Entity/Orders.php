@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\OrdersRepository;
 use ApiPlatform\Metadata\ApiResource;
@@ -21,10 +22,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
             name:'app_client_orders_listing'
          ),
          new Get(
-         security: "is_granted('ROLE_CLIENT')",
-         uriTemplate: '/api/orders/detail/{idUser}/{idOrder}',
-         name:'app_client_orders_detail'
-      )
+            security: "is_granted('ROLE_CLIENT')",
+            uriTemplate: '/api/orders/detail/{idUser}/{idOrder}',
+            name:'app_client_orders_detail'
+        ),
+        new Delete(
+           security: "is_granted('ROLE_CLIENT')",
+           uriTemplate: '/api/orders/ddelete/{idUser}/{idOrder}',
+           name:'app_client_orders_delete'
+       )
     ]
 )]
 class Orders

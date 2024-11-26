@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
@@ -20,7 +21,11 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
             uriTemplate: '/api/user/register',
             name:'app_user_register',
         ),
-       
+       new Put(
+        description: 'update the account.',
+            uriTemplate: '/api/user/update/{id}',
+            name:'app_user_update',
+       )
     ]
 )]
 #[ORM\Entity(repositoryClass: UserRepository::class)]

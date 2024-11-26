@@ -19,7 +19,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
             security: "is_granted('ROLE_CLIENT')",
             uriTemplate: '/api/orders/listing/{idUser}',
             name:'app_client_orders_listing'
-         )
+         ),
+         new Get(
+         security: "is_granted('ROLE_CLIENT')",
+         uriTemplate: '/api/orders/detail/{idUser}/{idOrder}',
+         name:'app_client_orders_detail'
+      )
     ]
 )]
 class Orders

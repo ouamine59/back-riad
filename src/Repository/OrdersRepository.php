@@ -26,6 +26,20 @@ class OrdersRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
     }
+
+     public function findOneByUser( $idUser, $idOrder):array{
+         return $this->createQueryBuilder('a')
+         ->select('NEW App\\DTO\\OrdersClientListingDTO(a.id, s.states, u.id, a.isCreatedAt)')
+         ->innerJoin('a.user', 'u')
+         ->innerJoin('a.states', 's')
+         ->where('a.user = :user')
+        ->andWhere("a.id =:order")
+         ->setParameter('order', $idOrder)
+         ->setParameter('user', $idUser)
+         ->getQuery()
+        ->getResult();
+     }
+    
     //    /**
     //     * @return Orders[] Returns an array of Orders objects
     //     */

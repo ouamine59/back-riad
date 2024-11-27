@@ -38,8 +38,10 @@ security:
         - { path: ^/api/orders/create/:idUser, roles: ROLE_CLIENT }
         
         - { path: ^/api/user/update/:id, roles: ROLE_CLIENT }
+  #admin
+        - { path: ^/api/upload, roles: ROLE_ADMIN }
 
-
+ #base       
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/docs, roles: PUBLIC_ACCESS }
         - { path: ^/auth, roles: PUBLIC_ACCESS }

@@ -40,6 +40,8 @@ security:
         - { path: ^/api/user/update/:id, roles: ROLE_CLIENT }
   #admin
         - { path: ^/api/upload, roles: ROLE_ADMIN }
+        - { path: ^/api/prpducts/admin/states/update/:productsId/:states, roles: ROLE_ADMIN }
+        
 
  #base       
         - { path: ^/$, roles: PUBLIC_ACCESS }

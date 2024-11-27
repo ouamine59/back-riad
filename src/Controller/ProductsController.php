@@ -103,7 +103,7 @@ class ProductsController extends AbstractController
             $entityManager->persist($product);
             $entityManager->flush();
             return new Response(
-                json_encode(['result' => 'Ad created successfully', 'id'=>$product->getId()]),
+                json_encode(['result' => 'product created successfully', 'id'=>$product->getId()]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );
@@ -172,7 +172,56 @@ class ProductsController extends AbstractController
             $entityManager->persist($product);
             $entityManager->flush();
             return new Response(
-                json_encode(['result' => 'Ad created successfully', 'id'=>$product->getId()]),
+                json_encode(['result' => 'product updated successfully', 'id'=>$product->getId()]),
+                Response::HTTP_CREATED,
+                ['Content-Type' => 'application/json']
+            );
+        } catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/admin/states/update/{productsId}/{states}', name: 'app_admin_products_states_update', methods:["PUT"])]
+    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    public function states(int $productsId, int $states, EntityManagerInterface $entityManager,
+    ValidatorInterface $validator,
+    ProductsRepository $productsRepository,
+): Response
+    {
+        try {
+            // Traite les données (par exemple, décoder le JSON si nécessaire)      
+            $product = $productsRepository->findOneBy(array('id'=>$productsId));
+            if(!$product){
+                return new JsonResponse(
+                    ['result' => 'product none find'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            if ($states !=0 and $states != 1){
+                return new JsonResponse(
+                    ['result' => 'states none correct'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $product->setActivied($states);
+  
+            $errors = $validator->validate($product);
+
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[] = $error->getMessage();
+                }
+
+                return new JsonResponse(
+                    ['result' => $errorMessages],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $entityManager->persist($product);
+            $entityManager->flush();
+            return new Response(
+                json_encode(['result' => 'State on the product updated successfully', 'id'=>$product->getId()]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );

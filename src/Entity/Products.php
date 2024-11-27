@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\ProductsRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductsRepository::class)]
@@ -22,10 +22,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
              name:'app_visitor_products_listing'
          ),
          new Post(
-            security: "is_granted('ROLE_ADMIN')",
-            uriTemplate: '/api/products/admin/create',
-            name:'app_admin_products_create'
-        ),
+             security: "is_granted('ROLE_ADMIN')",
+             uriTemplate: '/api/products/admin/create',
+             name:'app_admin_products_create'
+         ),
         new Put(
             security: "is_granted('ROLE_ADMIN')",
             uriTemplate: '/api/products/admin/update/{productsId}',
@@ -97,7 +97,7 @@ class Products
     public function __construct()
     {
         $this->mediaObjects = new ArrayCollection();
-        $this->rowsOrders = new ArrayCollection();
+        $this->rowsOrders   = new ArrayCollection();
     }
 
     public function getId(): ?int

@@ -3,17 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Products;
-use App\Repository\ProductsRepository;
 use App\Repository\CategoriesRepository;
+use App\Repository\ProductsRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 #[Route('/api/products')]
 class ProductsController extends AbstractController
 {
@@ -21,20 +22,20 @@ class ProductsController extends AbstractController
     public function index(ProductsRepository $productsRepository): Response
     {
         try {
-            $result = $productsRepository->findBy(array("isActivied"=>1));
+            $result = $productsRepository->findBy(["isActivied" => 1]);
 
             $adsData = array_map(function ($product) {
                 return [
-                    'id' => $product->getId(),
-                    'title' => $product->getTitle(),
-                    'price' => $product->getPrice(),
-                    'discount' => $product->isDiscount(),
-                    "priceDiscount"=>$product->getPriceDiscount(),
-                    "description"=>$product->getDescription(),
-                    "image" =>$product->getMediaObjects()
+                    'id'            => $product->getId(),
+                    'title'         => $product->getTitle(),
+                    'price'         => $product->getPrice(),
+                    'discount'      => $product->isDiscount(),
+                    "priceDiscount" => $product->getPriceDiscount(),
+                    "description"   => $product->getDescription(),
+                    "image"         => $product->getMediaObjects()
                 ];
             }, $result);
-            if ($result ) {
+            if ($result) {
                 return new Response(
                     json_encode(['result' => $adsData]),
                     Response::HTTP_OK,
@@ -52,28 +53,24 @@ class ProductsController extends AbstractController
     }
     #[Route('/admin/create', name: 'app_admin_products_create', methods:["POST"])]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
-    public function create(EntityManagerInterface $entityManager,
-    ValidatorInterface $validator, Request $request,
-    CategoriesRepository $categoriesRepository): Response
-    {
+    public function create(
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        Request $request,
+        CategoriesRepository $categoriesRepository
+    ): Response {
         try {
             $data = $request->getContent();
             // Traite les données (par exemple, décoder le JSON si nécessaire)
             $jsonData = json_decode($data, true);
-            if (!isset($jsonData['title']) or 
-            !isset($jsonData['price']) or 
-            !isset($jsonData['discount']) or 
-            !isset($jsonData['priceDiscount']) or 
-            !isset($jsonData['description']) or 
-            !isset($jsonData['isActivied']) or 
-            !isset($jsonData['categoriesId'])) {
+            if (!isset($jsonData['title']) or !isset($jsonData['price']) or !isset($jsonData['discount']) or !isset($jsonData['priceDiscount']) or !isset($jsonData['description']) or !isset($jsonData['isActivied']) or !isset($jsonData['categoriesId'])) {
                 return new JsonResponse(
                     ['result' => 'data missing'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
             $categorie = $categoriesRepository->find($jsonData['categoriesId']);
-            if(!$categorie){
+            if (!$categorie) {
                 return new JsonResponse(
                     ['result' => 'categories missing'],
                     Response::HTTP_BAD_REQUEST
@@ -103,7 +100,7 @@ class ProductsController extends AbstractController
             $entityManager->persist($product);
             $entityManager->flush();
             return new Response(
-                json_encode(['result' => 'product created successfully', 'id'=>$product->getId()]),
+                json_encode(['result' => 'product created successfully', 'id' => $product->getId()]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );
@@ -113,37 +110,33 @@ class ProductsController extends AbstractController
     }
     #[Route('/admin/update/{productsId}', name: 'app_admin_products_update', methods:["PUT"])]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
-    public function update(int $productsId,EntityManagerInterface $entityManager,
-    ValidatorInterface $validator, Request $request,
-    ProductsRepository $productsRepository,
-    CategoriesRepository $categoriesRepository): Response
-    {
+    public function update(
+        int $productsId,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        Request $request,
+        ProductsRepository $productsRepository,
+        CategoriesRepository $categoriesRepository
+    ): Response {
         try {
             $data = $request->getContent();
             // Traite les données (par exemple, décoder le JSON si nécessaire)
             $jsonData = json_decode($data, true);
-            if (!isset($jsonData['title']) or 
-            !isset($jsonData['id']) or
-            !isset($jsonData['price']) or 
-            !isset($jsonData['discount']) or 
-            !isset($jsonData['priceDiscount']) or 
-            !isset($jsonData['description']) or 
-            !isset($jsonData['isActivied']) or 
-            !isset($jsonData['categoriesId'])) {
+            if (!isset($jsonData['title']) or !isset($jsonData['id']) or !isset($jsonData['price']) or !isset($jsonData['discount']) or !isset($jsonData['priceDiscount']) or !isset($jsonData['description']) or !isset($jsonData['isActivied']) or !isset($jsonData['categoriesId'])) {
                 return new JsonResponse(
                     ['result' => 'data missing'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
             $categorie = $categoriesRepository->find($jsonData['categoriesId']);
-            if(!$categorie){
+            if (!$categorie) {
                 return new JsonResponse(
                     ['result' => 'categories missing'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
-            $product = $productsRepository->findOneBy(array('id'=>$productsId));
-            if(!$product){
+            $product = $productsRepository->findOneBy(['id' => $productsId]);
+            if (!$product) {
                 return new JsonResponse(
                     ['result' => 'product none find'],
                     Response::HTTP_BAD_REQUEST
@@ -172,7 +165,7 @@ class ProductsController extends AbstractController
             $entityManager->persist($product);
             $entityManager->flush();
             return new Response(
-                json_encode(['result' => 'product updated successfully', 'id'=>$product->getId()]),
+                json_encode(['result' => 'product updated successfully', 'id' => $product->getId()]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );
@@ -183,28 +176,30 @@ class ProductsController extends AbstractController
 
     #[Route('/admin/states/update/{productsId}/{states}', name: 'app_admin_products_states_update', methods:["PUT"])]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
-    public function states(int $productsId, int $states, EntityManagerInterface $entityManager,
-    ValidatorInterface $validator,
-    ProductsRepository $productsRepository,
-): Response
-    {
+    public function states(
+        int $productsId,
+        int $states,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        ProductsRepository $productsRepository,
+    ): Response {
         try {
-            // Traite les données (par exemple, décoder le JSON si nécessaire)      
-            $product = $productsRepository->findOneBy(array('id'=>$productsId));
-            if(!$product){
+            // Traite les données (par exemple, décoder le JSON si nécessaire)
+            $product = $productsRepository->findOneBy(['id' => $productsId]);
+            if (!$product) {
                 return new JsonResponse(
                     ['result' => 'product none find'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
-            if ($states !=0 and $states != 1){
+            if ($states != 0 and $states != 1) {
                 return new JsonResponse(
                     ['result' => 'states none correct'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
             $product->setActivied($states);
-  
+
             $errors = $validator->validate($product);
 
             if (count($errors) > 0) {
@@ -221,7 +216,7 @@ class ProductsController extends AbstractController
             $entityManager->persist($product);
             $entityManager->flush();
             return new Response(
-                json_encode(['result' => 'State on the product updated successfully', 'id'=>$product->getId()]),
+                json_encode(['result' => 'State on the product updated successfully', 'id' => $product->getId()]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );
@@ -233,13 +228,13 @@ class ProductsController extends AbstractController
 
     #[Route('/admin/listing', name: 'app_admin_products_listing', methods:["GET"])]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
-    public function listing( ProductsRepository $productsRepository,
-): Response
-    {
+    public function listing(
+        ProductsRepository $productsRepository,
+    ): Response {
         try {
-            // Traite les données (par exemple, décoder le JSON si nécessaire)      
-            $result = $productsRepository->findAllForAdmin( );
-            if(!$result){
+            // Traite les données (par exemple, décoder le JSON si nécessaire)
+            $result = $productsRepository->findAllForAdmin();
+            if (!$result) {
                 return new JsonResponse(
                     ['result' => 'product none find'],
                     Response::HTTP_BAD_REQUEST
@@ -247,13 +242,13 @@ class ProductsController extends AbstractController
             }
             $productsData = array_map(function ($product) {
                 return [
-                    'id' => $product->getId(),
-                    'title' => $product->getTitle(),
+                    'id'         => $product->getId(),
+                    'title'      => $product->getTitle(),
                     'isActivied' => $product->getActivied(),
                 ];
             }, $result);
             return new Response(
-                json_encode(['result' =>$productsData]),
+                json_encode(['result' => $productsData]),
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );

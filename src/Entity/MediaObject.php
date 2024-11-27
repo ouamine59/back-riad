@@ -2,17 +2,15 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
-use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
 use App\Repository\MediaObjectRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\Validator\Constraints as Assert;
+
 #[ORM\Entity(repositoryClass: MediaObjectRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['media_object:read']],
@@ -29,10 +27,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                     content: new \ArrayObject([
                         'multipart/form-data' => [
                             'schema' => [
-                                'type' => 'object',
+                                'type'       => 'object',
                                 'properties' => [
                                     'file' => [
-                                        'type' => 'string',
+                                        'type'   => 'string',
                                         'format' => 'binary'
                                     ]
                                 ]

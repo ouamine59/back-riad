@@ -23,7 +23,7 @@ class SecurityController extends AbstractController
         // Retourner les informations utilisateur sans générer de token
         return $this->json([
             'user' => $user->getUserIdentifier(),
-            'id' => $user->getId(),
+            'id'   => $user->getId(),
         ]);
     }
 }

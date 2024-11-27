@@ -17,29 +17,31 @@ class OrdersRepository extends ServiceEntityRepository
     }
     public function findAllByIdUser($idUser): array
     {
-    return $this->createQueryBuilder('a')
+        return $this->createQueryBuilder('a')
+            ->select('NEW App\\DTO\\OrdersClientListingDTO(a.id, s.states, u.id, a.isCreatedAt)')
+            ->innerJoin('a.user', 'u')
+            ->innerJoin('a.states', 's')
+            ->where('a.user = :id')
+            ->setParameter('id', $idUser)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findOneByUser($idUser, $idOrder): array
+    {
+        return $this->createQueryBuilder('a')
         ->select('NEW App\\DTO\\OrdersClientListingDTO(a.id, s.states, u.id, a.isCreatedAt)')
         ->innerJoin('a.user', 'u')
         ->innerJoin('a.states', 's')
-        ->where('a.user = :id')
-        ->setParameter('id', $idUser)
+        ->where('a.user = :user')
+        ->andWhere("a.id =:order")
+        ->setParameter('order', $idOrder)
+        ->setParameter('user', $idUser)
         ->getQuery()
         ->getResult();
     }
-
-     public function findOneByUser( $idUser, $idOrder):array{
-         return $this->createQueryBuilder('a')
-         ->select('NEW App\\DTO\\OrdersClientListingDTO(a.id, s.states, u.id, a.isCreatedAt)')
-         ->innerJoin('a.user', 'u')
-         ->innerJoin('a.states', 's')
-         ->where('a.user = :user')
-        ->andWhere("a.id =:order")
-         ->setParameter('order', $idOrder)
-         ->setParameter('user', $idUser)
-         ->getQuery()
-        ->getResult();
-     }
-    public function findAllForAdmin():array{
+    public function findAllForAdmin(): array
+    {
         return $this->createQueryBuilder('a')
          ->select('NEW App\\DTO\\OrdersAdminListingDTO(a.id, a.isCreatedAt, u.firstName, u.lastName,s.states)')
          ->innerJoin('a.user', 'u')
@@ -47,7 +49,8 @@ class OrdersRepository extends ServiceEntityRepository
          ->getQuery()
         ->getResult();
     }
-    public function findOneForAdmin(int $ordersId):array{
+    public function findOneForAdmin(int $ordersId): array
+    {
         return $this->createQueryBuilder('a')
         ->select('NEW App\\DTO\\OrdersAdminDetailDTO(a.id, a.isCreatedAt, u.firstName, u.lastName,s.states)')
         ->innerJoin('a.user', 'u')
@@ -55,7 +58,8 @@ class OrdersRepository extends ServiceEntityRepository
         ->getQuery()
        ->getResult();
     }
-    public function countOrder(): int{
+    public function countOrder(): int
+    {
         return $this->createQueryBuilder('o')
             ->select('COUNT(o.id)')
             ->getQuery()

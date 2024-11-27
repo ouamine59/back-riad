@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Delete;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\OrdersRepository;
-use ApiPlatform\Metadata\ApiResource;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: OrdersRepository::class)]
@@ -18,48 +18,48 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext:['groups' => ['orders:write']],
     operations: [
          new Get(
-            security: "is_granted('ROLE_CLIENT')",
-            uriTemplate: '/api/orders/listing/{idUser}',
-            name:'app_client_orders_listing'
+             security: "is_granted('ROLE_CLIENT')",
+             uriTemplate: '/api/orders/listing/{idUser}',
+             name:'app_client_orders_listing'
          ),
          new Get(
-            security: "is_granted('ROLE_CLIENT')",
-            uriTemplate: '/api/orders/detail/{idUser}/{idOrder}',
-            name:'app_client_orders_detail'
-        ),
+             security: "is_granted('ROLE_CLIENT')",
+             uriTemplate: '/api/orders/detail/{idUser}/{idOrder}',
+             name:'app_client_orders_detail'
+         ),
         new Delete(
-           security: "is_granted('ROLE_CLIENT')",
-           uriTemplate: '/api/orders/ddelete/{idUser}/{idOrder}',
-           name:'app_client_orders_delete'
-       )
+            security: "is_granted('ROLE_CLIENT')",
+            uriTemplate: '/api/orders/ddelete/{idUser}/{idOrder}',
+            name:'app_client_orders_delete'
+        )
        ,
         new Post(
-           security: "is_granted('ROLE_CLIENT')",
-           uriTemplate: '/api/orders/create/{idUser}',
-           name:'app_client_orders_create'
-       )
+            security: "is_granted('ROLE_CLIENT')",
+            uriTemplate: '/api/orders/create/{idUser}',
+            name:'app_client_orders_create'
+        )
        ,
         new Post(
-           security: "is_granted('ROLE_ADMIN')",
-           uriTemplate: '/api/orders/admin/listing',
-           name:'app_admin_orders_listing'
-       )
+            security: "is_granted('ROLE_ADMIN')",
+            uriTemplate: '/api/orders/admin/listing',
+            name:'app_admin_orders_listing'
+        )
        ,
         new Get(
-           security: "is_granted('ROLE_ADMIN')",
-           uriTemplate: '/api/orders/admin/detail/{ordersId}',
-           name:'app_admin_orders_detail'
+            security: "is_granted('ROLE_ADMIN')",
+            uriTemplate: '/api/orders/admin/detail/{ordersId}',
+            name:'app_admin_orders_detail'
         ),
        new Get(
-        security: "is_granted('ROLE_ADMIN')",
-        uriTemplate: '/api/orders/admin/states/update/{ordersId}/{statesId}',
-        name:'app_admin_orders_update_states'
+           security: "is_granted('ROLE_ADMIN')",
+           uriTemplate: '/api/orders/admin/states/update/{ordersId}/{statesId}',
+           name:'app_admin_orders_update_states'
        ),
        new Get(
-        security: "is_granted('ROLE_ADMIN')",
-        uriTemplate: '/api/orders/admin/count',
-        name:'app_admin_orders_count'
-        )
+           security: "is_granted('ROLE_ADMIN')",
+           uriTemplate: '/api/orders/admin/count',
+           name:'app_admin_orders_count'
+       )
     ]
 )]
 class Orders

@@ -62,6 +62,8 @@
         "symfony/polyfill-php82": "*"
     },
     "scripts": {
+        "fix": "php-cs-fixer fix --config=.php-cs-fixer.php",
+        "fix:dry": "php-cs-fixer fix --config=.php-cs-fixer.php --dry-run",
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
@@ -83,6 +85,7 @@
         }
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.65",
         "symfony/maker-bundle": "^1.61"
     }
 }

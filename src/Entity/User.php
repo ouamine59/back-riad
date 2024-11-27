@@ -2,16 +2,17 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use Doctrine\ORM\Mapping as ORM;
-use App\Repository\UserRepository;
 use ApiPlatform\Metadata\ApiResource;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ApiResource(
     normalizationContext:['groups' => ['user:read']],
     denormalizationContext:['groups' => ['user:write']],
@@ -22,16 +23,16 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
             name:'app_user_register',
         ),
        new Put(
-        security: "is_granted('ROLE_CLIENT')",
-        description: 'update the account.',
-            uriTemplate: '/api/user/update/{id}',
-            name:'app_user_update',
+           security: "is_granted('ROLE_CLIENT')",
+           description: 'update the account.',
+           uriTemplate: '/api/user/update/{id}',
+           name:'app_user_update',
        ),
        new Put(
-        security: "  is_granted('ROLE_ADMIN')",
-        description: 'update the account.',
-            uriTemplate: '/api/user/admin/update/{id}',
-            name:'app_user_admin_update',
+           security: "  is_granted('ROLE_ADMIN')",
+           description: 'update the account.',
+           uriTemplate: '/api/user/admin/update/{id}',
+           name:'app_user_admin_update',
        )
     ]
 )]

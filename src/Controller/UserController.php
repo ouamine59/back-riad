@@ -1,32 +1,32 @@
 <?php
 
 namespace App\Controller;
+
 use App\Entity\User;
-use DateTimeImmutable;
-use App\Repository\UserRepository;
 use App\Repository\CitiesRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Repository\MediaObjectRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
 #[Route('/api/user')]
-    
+
 class UserController extends AbstractController
 {
     #[Route('/register', name: 'app_user_register', methods:["POST"])]
-    public function index(EntityManagerInterface $entityManager, 
-    ValidatorInterface $validator, 
-    Request $request, 
-    UserPasswordHasherInterface $passwordHasher,
-    CitiesRepository $citiesRepository): Response
-    {
+    public function index(
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        CitiesRepository $citiesRepository
+    ): Response {
         try {
             $data = $request->getContent();
             // Traite les données (par exemple, décoder le JSON si nécessaire)
@@ -34,16 +34,16 @@ class UserController extends AbstractController
             if ($jsonData === null) {
                 return new JsonResponse(['result' => 'Invalid JSON format'], Response::HTTP_BAD_REQUEST);
             }
-            if (!isset($jsonData['email'], 
-            $jsonData['password'], 
-            $jsonData['phone'], 
-            $jsonData['firstName'], 
-            $jsonData['lastName'],
-            $jsonData['idCities'],
-            $jsonData['adress'])) {
+            if (!isset($jsonData['email'],
+                $jsonData['password'],
+                $jsonData['phone'],
+                $jsonData['firstName'],
+                $jsonData['lastName'],
+                $jsonData['idCities'],
+                $jsonData['adress'])) {
                 return new JsonResponse(['result' => 'Data missing'], Response::HTTP_BAD_REQUEST);
             }
-            $cities = $citiesRepository->findOneBy(array("id"=>$jsonData['idCities']));
+            $cities = $citiesRepository->findOneBy(["id" => $jsonData['idCities']]);
             if (!$cities) {
                 return new JsonResponse(['result' => 'City not found'], Response::HTTP_BAD_REQUEST);
             }
@@ -77,7 +77,7 @@ class UserController extends AbstractController
                 ['result' => 'User registered successfully'],
                 Response::HTTP_CREATED
             );
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return new JsonResponse(['result' => 'Internal server error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -88,7 +88,7 @@ class UserController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         Request $request,
-        UserPasswordHasherInterface $passwordHasher, 
+        UserPasswordHasherInterface $passwordHasher,
         CitiesRepository $citiesRepository
     ): Response {
         try {
@@ -119,7 +119,7 @@ class UserController extends AbstractController
 
                 $data['comment'],
                 $data['citiesId'],
-                )) {
+            )) {
                 return new JsonResponse(
                     ['result' => 'Invalid data provided'],
                     Response::HTTP_BAD_REQUEST
@@ -136,16 +136,16 @@ class UserController extends AbstractController
             $client->setAdress($data['adress']);
             $client->setPhone($data['phone']);
             $client->setComment($data['comment']);
-            $cities = $citiesRepository->findOneBy(array("id"=>$data['citiesId']));
-            if(!$cities ){
+            $cities = $citiesRepository->findOneBy(["id" => $data['citiesId']]);
+            if (!$cities) {
                 return new JsonResponse(
                     ['result' => 'Cities not found'],
                     Response::HTTP_NOT_FOUND
                 );
             }
             $client->setCities($cities);
-            
-            
+
+
 
             // Hashage du mot de passe
             $hashedPassword = $passwordHasher->hashPassword($client, $data['password']);
@@ -176,7 +176,7 @@ class UserController extends AbstractController
             return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-  
+
     #[Route('/admin/update/{id}', name: 'app_user_admin_update', methods: ['PUT'])]
     #[IsGranted(new Expression(' is_granted("ROLE_ADMIN")'))]
     public function updateAdmin(
@@ -184,7 +184,7 @@ class UserController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         Request $request,
-        UserPasswordHasherInterface $passwordHasher, 
+        UserPasswordHasherInterface $passwordHasher,
         CitiesRepository $citiesRepository
     ): Response {
         try {
@@ -215,7 +215,7 @@ class UserController extends AbstractController
 
                 $data['comment'],
                 $data['citiesId'],
-                )) {
+            )) {
                 return new JsonResponse(
                     ['result' => 'Invalid data provided'],
                     Response::HTTP_BAD_REQUEST
@@ -232,16 +232,16 @@ class UserController extends AbstractController
             $client->setAdress($data['adress']);
             $client->setPhone($data['phone']);
             $client->setComment($data['comment']);
-            $cities = $citiesRepository->findOneBy(array("id"=>$data['citiesId']));
-            if(!$cities ){
+            $cities = $citiesRepository->findOneBy(["id" => $data['citiesId']]);
+            if (!$cities) {
                 return new JsonResponse(
                     ['result' => 'Cities not found'],
                     Response::HTTP_NOT_FOUND
                 );
             }
             $client->setCities($cities);
-            
-            
+
+
 
             // Hashage du mot de passe
             $hashedPassword = $passwordHasher->hashPassword($client, $data['password']);
@@ -272,9 +272,9 @@ class UserController extends AbstractController
             return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-  
 
 
- 
-  
+
+
+
 }

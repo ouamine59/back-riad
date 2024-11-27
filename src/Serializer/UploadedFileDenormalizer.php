@@ -28,8 +28,8 @@ final class UploadedFileDenormalizer implements DenormalizerInterface
     public function getSupportedTypes(?string $format): array
     {
         return [
-            'object' => null,
-            '*' => false,
+            'object'    => null,
+            '*'         => false,
             File::class => true,
         ];
     }

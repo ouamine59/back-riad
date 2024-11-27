@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ProductsRepository;
@@ -18,7 +19,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
          new Get(
              uriTemplate: '/api/products/listing',
              name:'app_visitor_products_listing'
-         )
+         ),
+         new Post(
+            security: "is_granted('ROLE_ADMIN')",
+            uriTemplate: '/api/products/admin/create',
+            name:'app_admin_products_create'
+        ),
     ]
 )]
 class Products

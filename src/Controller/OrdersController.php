@@ -231,7 +231,8 @@ public function create(
                 $row->setOrders($order);
                 $row->setProducts($prod);
                 $row->setAmount($product['amount']);
-                $row->setPrice($prod->getPrice());
+                $price = ($prod->getDiscount()==1)? $prod->getPriceDiscount():$prod->getPrice();
+                $row->setPrice($price);
             }
 
            $errors = $validator->validate($order);

@@ -262,4 +262,41 @@ public function create(
         );
     }
 }
+
+
+#[Route('/admin/listing', name: 'app_admin_orders_listing', methods: ["GET"])]
+#[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
+public function listingAdmin(OrdersRepository $ordersRepository): Response {
+    try {
+       $result = $ordersRepository->findAllForAdmin();
+       
+        if (!$result) {
+            return new JsonResponse(
+                ['result' => 'orders not found'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $ordersData = array_map(function ($order) {
+            return [
+  
+
+                'id' => $order->getId(),
+                'isCreatedAt' => $order->getCreatedAt(),
+                'firstName' => $order->getFirstName(),
+                'lastName'=>$order->getLastName(),
+                "states"=>$order->getStates()
+            ];
+        }, $result);
+            return new JsonResponse(
+                ['result' => $ordersData],
+                Response::HTTP_CREATED
+            );
+        
+    } catch (\Exception $e) {
+        return new JsonResponse(
+            ['result' => 'Database error', 'error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
+    }
+}
 }

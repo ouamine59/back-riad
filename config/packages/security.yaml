@@ -43,7 +43,8 @@ security:
         - { path: ^/api/products/admin/create, roles: ROLE_ADMIN }
         - { path: ^/api/products/admin/update/:productsId, roles: ROLE_ADMIN } 
         - { path: ^/api/products/admin/states/update/:productsId/:states, roles: ROLE_ADMIN }
-        - { path: ^/api/products/admin/listing, roles: ROLE_ADMIN } 
+        - { path: ^/api/products/admin/listing, roles: ROLE_ADMIN }
+        - { path: ^/api/orders/admin/listing, roles: ROLE_ADMIN }  
         
 
  #base       

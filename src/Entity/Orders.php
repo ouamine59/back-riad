@@ -38,6 +38,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
            uriTemplate: '/api/orders/create/{idUser}',
            name:'app_client_orders_create'
        )
+       ,
+        new Post(
+           security: "is_granted('ROLE_ADMIN')",
+           uriTemplate: '/api/orders/admin/listing',
+           name:'app_admin_orders_listing'
+       )
     ]
 )]
 class Orders

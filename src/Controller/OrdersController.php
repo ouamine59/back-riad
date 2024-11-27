@@ -358,4 +358,37 @@ ProductsRepository $productsRepository): Response {
         );
     }
 }
+
+#[Route('/admin/states/update/{ordersId}/{statesId}', name: 'app_admin_orders_update_states', methods: ["PUT"])]
+#[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+public function updateStateAdmin(int $ordersId,int $statesId, 
+OrdersRepository $ordersRepository,
+StatesRepository $statesRepository,
+EntityManagerInterface $entityManager
+): Response {
+    try {
+        $order = $ordersRepository->findOneBy(["id"=>$ordersId]);
+        $states = $statesRepository->findOneBy(["id"=>$statesId]);
+        if(!$order or !$states){
+            return new JsonResponse(
+                ['result' => 'orders not found'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $order->setStates($states);
+        $entityManager->persist($order);
+        $entityManager->flush();
+        
+            return new JsonResponse(
+                ['result' => "State order changed"],
+                Response::HTTP_OK
+            );
+        
+    } catch (\Exception $e) {
+        return new JsonResponse(
+            ['result' => 'Database error', 'error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
+    }
+}
 }

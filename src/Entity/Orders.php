@@ -49,7 +49,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
            security: "is_granted('ROLE_ADMIN')",
            uriTemplate: '/api/orders/admin/detail/{ordersId}',
            name:'app_admin_orders_detail'
-       )
+        ),
+       new Get(
+        security: "is_granted('ROLE_ADMIN')",
+        uriTemplate: '/api/orders/admin/states/update/{ordersId}/{statesId}',
+        name:'app_admin_orders_update_states'
+    )
     ]
 )]
 class Orders

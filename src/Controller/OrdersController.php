@@ -299,4 +299,63 @@ public function listingAdmin(OrdersRepository $ordersRepository): Response {
         );
     }
 }
+
+#[Route('/admin/detail/{ordersId}', name: 'app_admin_orders_detail', methods: ["GET"])]
+#[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
+public function detailAdmin(int $ordersId, OrdersRepository $ordersRepository,
+RowsOrderRepository $rowOrdersRepository,
+ProductsRepository $productsRepository): Response {
+    try {
+        $order = $ordersRepository->findOneBy(["id"=>$ordersId]);
+        if(!$order){
+            return new JsonResponse(
+                ['result' => 'orders not found'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+       $result = $ordersRepository->findOneForAdmin($ordersId);
+       
+        if (!$result) {
+            return new JsonResponse(
+                ['result' => 'orders not found'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $orderData = array_map(function ($order) {
+            return [
+  
+
+                'id' => $order->getId(),
+                'isCreatedAt' => $order->getCreatedAt(),
+                'firstName' => $order->getFirstName(),
+                'lastName'=>$order->getLastName(),
+                "states"=>$order->getStates()
+            ];
+        }, $result);
+        // Récupération des produits dans la commande
+        $products = $ordersRepository->find($ordersId)->getRowsOrders()->toArray(); 
+         foreach ($products as $product) {
+             $row = $rowOrdersRepository->findOneBy(array("orders"=>$ordersId));
+             $prod = $productsRepository->findOneBy(['id' => $product->getProducts()]);
+            if ($prod) {
+                $orderData['products'][] = [
+                    "title" => $prod->getTitle(),
+                    "description" => $prod->getDescription(),
+                    "amount"=>$row->getAmount(),
+                    "price"=>$row->getPrice()
+                ];
+            }
+         }
+            return new JsonResponse(
+                ['result' => $orderData],
+                Response::HTTP_OK
+            );
+        
+    } catch (\Exception $e) {
+        return new JsonResponse(
+            ['result' => 'Database error', 'error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
+    }
+}
 }

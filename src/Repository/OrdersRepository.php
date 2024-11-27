@@ -47,6 +47,14 @@ class OrdersRepository extends ServiceEntityRepository
          ->getQuery()
         ->getResult();
     }
+    public function findOneForAdmin(int $ordersId):array{
+        return $this->createQueryBuilder('a')
+        ->select('NEW App\\DTO\\OrdersAdminDetailDTO(a.id, a.isCreatedAt, u.firstName, u.lastName,s.states)')
+        ->innerJoin('a.user', 'u')
+        ->innerJoin('a.states', 's')
+        ->getQuery()
+       ->getResult();
+    }
     //    /**
     //     * @return Orders[] Returns an array of Orders objects
     //     */

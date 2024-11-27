@@ -111,4 +111,73 @@ class ProductsController extends AbstractController
             return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    #[Route('/admin/update/{productsId}', name: 'app_admin_products_update', methods:["PUT"])]
+    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    public function update(int $productsId,EntityManagerInterface $entityManager,
+    ValidatorInterface $validator, Request $request,
+    ProductsRepository $productsRepository,
+    CategoriesRepository $categoriesRepository): Response
+    {
+        try {
+            $data = $request->getContent();
+            // Traite les données (par exemple, décoder le JSON si nécessaire)
+            $jsonData = json_decode($data, true);
+            if (!isset($jsonData['title']) or 
+            !isset($jsonData['id']) or
+            !isset($jsonData['price']) or 
+            !isset($jsonData['discount']) or 
+            !isset($jsonData['priceDiscount']) or 
+            !isset($jsonData['description']) or 
+            !isset($jsonData['isActivied']) or 
+            !isset($jsonData['categoriesId'])) {
+                return new JsonResponse(
+                    ['result' => 'data missing'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $categorie = $categoriesRepository->find($jsonData['categoriesId']);
+            if(!$categorie){
+                return new JsonResponse(
+                    ['result' => 'categories missing'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $product = $productsRepository->findOneBy(array('id'=>$productsId));
+            if(!$product){
+                return new JsonResponse(
+                    ['result' => 'product none find'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $product->setTitle($jsonData['title']);
+            $product->setPrice($jsonData['price']);
+            $product->setDiscount($jsonData['discount']);
+            $product->setPriceDiscount($jsonData['priceDiscount']);
+            $product->setDescription($jsonData['description']);
+            $product->setActivied($jsonData['isActivied']);
+            $product->setCategories($categorie);
+            $errors = $validator->validate($product);
+
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[] = $error->getMessage();
+                }
+
+                return new JsonResponse(
+                    ['result' => $errorMessages],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $entityManager->persist($product);
+            $entityManager->flush();
+            return new Response(
+                json_encode(['result' => 'Ad created successfully', 'id'=>$product->getId()]),
+                Response::HTTP_CREATED,
+                ['Content-Type' => 'application/json']
+            );
+        } catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

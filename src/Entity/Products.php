@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
@@ -24,6 +25,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
             security: "is_granted('ROLE_ADMIN')",
             uriTemplate: '/api/products/admin/create',
             name:'app_admin_products_create'
+        ),
+        new Put(
+            security: "is_granted('ROLE_ADMIN')",
+            uriTemplate: '/api/products/admin/update/{productsId}',
+            name:'app_admin_products_update'
         ),
     ]
 )]

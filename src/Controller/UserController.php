@@ -82,7 +82,7 @@ class UserController extends AbstractController
         }
     }
     #[Route('/update/{id}', name: 'app_user_update', methods: ['PUT'])]
-    #[IsGranted(new Expression('is_granted("ROLE_USER")'))]
+    #[IsGranted(new Expression('is_granted("ROLE_USER") or is_granted("ROLE_ADMIN")'))]
     public function update(
         int $id,
         EntityManagerInterface $entityManager,

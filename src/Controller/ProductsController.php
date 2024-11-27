@@ -229,4 +229,36 @@ class ProductsController extends AbstractController
             return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    #[Route('/admin/listing', name: 'app_admin_products_listing', methods:["GET"])]
+    #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+    public function listing( ProductsRepository $productsRepository,
+): Response
+    {
+        try {
+            // Traite les données (par exemple, décoder le JSON si nécessaire)      
+            $result = $productsRepository->findAllForAdmin( );
+            if(!$result){
+                return new JsonResponse(
+                    ['result' => 'product none find'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            $productsData = array_map(function ($product) {
+                return [
+                    'id' => $product->getId(),
+                    'title' => $product->getTitle(),
+                    'isActivied' => $product->getActivied(),
+                ];
+            }, $result);
+            return new Response(
+                json_encode(['result' =>$productsData]),
+                Response::HTTP_CREATED,
+                ['Content-Type' => 'application/json']
+            );
+        } catch (\Exception $e) {
+            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -36,6 +36,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: '/api/products/admin/states/update/{productsId}/{states}',
             name:'app_admin_products_states_update'
         ),
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            uriTemplate: '/api/products/admin/listing',
+            name:'app_admin_products_listing'
+        ),
     ]
 )]
 class Products

@@ -55,6 +55,13 @@ class OrdersRepository extends ServiceEntityRepository
         ->getQuery()
        ->getResult();
     }
+    public function countOrder(): int{
+        return $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+    }
     //    /**
     //     * @return Orders[] Returns an array of Orders objects
     //     */

@@ -22,10 +22,16 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
             name:'app_user_register',
         ),
        new Put(
-        security: "is_granted('ROLE_CLIENT') or  is_granted('ROLE_ADMIN')",
+        security: "is_granted('ROLE_CLIENT')",
         description: 'update the account.',
             uriTemplate: '/api/user/update/{id}',
             name:'app_user_update',
+       ),
+       new Put(
+        security: "  is_granted('ROLE_ADMIN')",
+        description: 'update the account.',
+            uriTemplate: '/api/user/admin/update/{id}',
+            name:'app_user_admin_update',
        )
     ]
 )]

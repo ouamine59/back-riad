@@ -47,7 +47,7 @@ security:
         - { path: ^/api/orders/admin/listing, roles: ROLE_ADMIN } 
         - { path: ^/api/orders/admin/detail/:ordersId, roles: ROLE_ADMIN } 
         - { path: ^/api/orders/admin/states/update/:ordersId/:statesId, roles: ROLE_ADMIN } 
-        
+        - { path: ^/api/user/admin/update/:id, roles: ROLE_ADMIN }
         
 
  #base       

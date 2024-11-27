@@ -391,4 +391,25 @@ EntityManagerInterface $entityManager
         );
     }
 }
+
+#[Route('/admin/count', name: 'app_admin_orders_count', methods: ["GET"])]
+#[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]
+public function countAdmin(OrdersRepository $ordersRepository): Response {
+    try {
+        $count = $ordersRepository->countOrder();
+        
+       
+        
+            return new JsonResponse(
+                ['result' => $count],
+                Response::HTTP_OK
+            );
+        
+    } catch (\Exception $e) {
+        return new JsonResponse(
+            ['result' => 'Database error', 'error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
+    }
+}
 }

@@ -32,19 +32,23 @@ class MediaObjectController extends AbstractController
             // Récupérer l'ID de l'annonce depuis le formulaire
             $productsId = $request->request->get('productsId');
             if (!$productsId) {
-                return new JsonResponse(['error' => 'L\'ID du product est requis.'], Response::HTTP_BAD_REQUEST);
+                return new JsonResponse(['error' => 'L\'ID du product est requis.'], 
+                Response::HTTP_BAD_REQUEST);
             }
 
             // Récupérer l'entité Ads correspondante
             $product = $doctrine->getRepository(Products::class)->find($productsId);
             if (!$product) {
-                return new JsonResponse(['error' => 'products none find'], Response::HTTP_NOT_FOUND);
+  
+              return new JsonResponse(['error' => 'products none find'], 
+                Response::HTTP_NOT_FOUND);
             }
 
             // Récupérer le fichier téléchargé
             $file = $request->files->get('filePath');
             if (!$file) {
-                return new JsonResponse(['error' => 'Fichier non fourni'], Response::HTTP_BAD_REQUEST);
+                return new JsonResponse(['error' => 'Fichier non fourni'], 
+                Response::HTTP_BAD_REQUEST);
             }
 
             $mediaObject = new MediaObject();
@@ -65,13 +69,14 @@ class MediaObjectController extends AbstractController
             $uploadHandler->upload($mediaObject, 'file');
             $entityManager->persist($mediaObject);
             $entityManager->flush();
-
             return new JsonResponse(
                 ['message' => 'Image associée avec succès à l\'annonce.'],
                 Response::HTTP_CREATED
             );
         } catch (\Exception $e) {
-            return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse(['result' => 'Database error', 'error' => 
+            $e->getMessage()],
+             Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

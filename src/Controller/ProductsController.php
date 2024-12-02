@@ -19,12 +19,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ProductsController extends AbstractController
 {
     #[Route('/listing', name: 'app_visitor_products_listing', methods:["GET"])]
-    public function index(ProductsRepository $productsRepository): Response
+    public function index(ProductsRepository $productsRepository, 
+    CategoriesRepository $categoriesRepository): Response
     {
         try {
             $result = $productsRepository->findBy(["isActivied" => 1]);
 
             $adsData = array_map(function ($product) {
+               // $image     = $product->getMediaObjects() ;
+              //  $categorie = $categoriesRepository->findOneBy(['id' => $product->getCategories()]);
                 return [
                     'id'            => $product->getId(),
                     'title'         => $product->getTitle(),
@@ -32,7 +35,8 @@ class ProductsController extends AbstractController
                     'discount'      => $product->isDiscount(),
                     "priceDiscount" => $product->getPriceDiscount(),
                     "description"   => $product->getDescription(),
-                    "image"         => $product->getMediaObjects()
+                    "image"         => $product->getMediaObjects(),
+                   // "categorie"     => $categorie
                 ];
             }, $result);
             if ($result) {

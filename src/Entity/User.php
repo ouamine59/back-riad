@@ -2,17 +2,19 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Repository\UserRepository;
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
-
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ApiResource(
     normalizationContext:['groups' => ['user:read']],
     denormalizationContext:['groups' => ['user:write']],
@@ -37,6 +39,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ]
 )]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -48,6 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Email]
     private ?string $email = null;
 
     /**
@@ -62,22 +66,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     #[Groups(['user:write'])]
+    #[Assert\PasswordStrength([
+        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG, // Very strong password required
+    ])]
     private ?string $password = null;
 
     #[ORM\Column(length: 80)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^[a-zA-Z\-]{2,80}$/')]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 80)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^[a-zA-Z\-]{2,80}$/')]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^\d+\s[A-Za-zÀ-ÖØ-öø-ÿ0-9\s,\.\-\']+$/')]
     private ?string $adress = null;
 
     #[ORM\Column(length: 10)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^\d{10}$/')]
     private ?string $phone = null;
 
     #[ORM\Column]

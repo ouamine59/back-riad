@@ -2,14 +2,24 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use App\Repository\CitiesRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Get;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CitiesRepository;
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: CitiesRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext:['groups' => ['products:read']],
+    denormalizationContext:['groups' => ['products:write']],
+    operations: [
+         new Get(
+             uriTemplate: '/api/cities/select',
+             name:'app_cities_select'
+         ),
+    ]
+)]
 class Cities
 {
     #[ORM\Id]

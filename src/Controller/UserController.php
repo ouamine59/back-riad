@@ -3,17 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\TokenService;
 use App\Repository\CitiesRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\ExpressionLanguage\Expression;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/api/user')]
 
@@ -89,7 +90,8 @@ class UserController extends AbstractController
         ValidatorInterface $validator,
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
-        CitiesRepository $citiesRepository
+        CitiesRepository $citiesRepository,
+        TokenService $tokenService,
     ): Response {
         try {
             // Rechercher l'utilisateur par son ID
@@ -166,7 +168,7 @@ class UserController extends AbstractController
 
             // Persister et sauvegarder les changements
             $entityManager->flush();
-
+            $tokenService->regenerateToken();
             return new JsonResponse(
                 ['result' => 'User updated successfully'],
                 Response::HTTP_OK,

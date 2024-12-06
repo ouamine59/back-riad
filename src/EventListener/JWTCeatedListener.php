@@ -24,6 +24,10 @@ class JWTCreatedListener
             $payload['id'] = $user->getId();
             $payload['firstName'] = $user->getFirstName();
             $payload['lastName'] = $user->getLastName();
+
+            $payload['adress'] = $user->getAdress();
+            $payload['phone'] = $user->getPhone();
+            $payload['citiesId'] = $user->getCities();
         }
 
         // Mettre à jour le payload

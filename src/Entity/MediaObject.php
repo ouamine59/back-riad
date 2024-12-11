@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-
+use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: MediaObjectRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['media_object:read']],
@@ -52,10 +52,14 @@ class MediaObject
 
     #[Vich\UploadableField(mapping: 'media_object', fileNameProperty: 'filePath')]
     #[Groups(['media_object:read', 'media_object:write'])]
+    #[Assert\Regex('/^[a-zA-Z0-9_\-\. ]+\.[a-zA-Z0-9]{1,255}+$/')]
+    #[Assert\NotBlank()]
     private ?File $file = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['media_object:read', 'media_object:write'])]
+    #[Assert\Regex('/^[a-zA-Z0-9_\-\. ]+\.[a-zA-Z0-9]{1,255}+$/')]
+    #[Assert\NotBlank()]
     private ?string $filePath = null;
 
     #[ORM\Column(nullable: true)]

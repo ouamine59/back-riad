@@ -1,10 +1,8 @@
-<?php
-
-namespace App\Controller;
+<?php namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class SecurityController extends AbstractController
@@ -12,15 +10,14 @@ class SecurityController extends AbstractController
     #[Route('/auth', name: 'auth', methods: ['POST'])]
     public function login(#[CurrentUser] $user = null): Response
     {
-        return $this->json($user);
+        // Vérifier si l'utilisateur est null
         if (null === $user) {
             return $this->json([
-                'message' => $user,
+                'message' => 'Unauthorized',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-
-        // Retourner les informations utilisateur sans générer de token
+        // Retourner les informations utilisateur
         return $this->json([
             'user' => $user->getUserIdentifier(),
             'id'   => $user->getId(),

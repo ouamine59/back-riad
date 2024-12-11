@@ -7,6 +7,7 @@ use App\Repository\StatesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: StatesRepository::class)]
 #[ApiResource]
@@ -18,6 +19,9 @@ class States
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
+
+    #[Assert\Regex('/^[a-zA-Z ]{1,20}$/')]
+    #[Assert\NotBlank()]
     private ?string $states = null;
 
     /**

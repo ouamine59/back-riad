@@ -29,7 +29,7 @@ class OrdersController extends AbstractController
     {
         try {
             $user = $ordersRepository->find($idUser);
-            if ($user != null) {
+            if ($user === null) { // Vérifie si aucun utilisateur n'est trouvé
                 return new JsonResponse(
                     ['result' => "no user"],
                     Response::HTTP_BAD_REQUEST
@@ -46,13 +46,13 @@ class OrdersController extends AbstractController
                 ];
             }, $result);
 
-            if ($result) {
+            if ($result) { // Vérifie si $result contient des données
                 return new Response(
                     json_encode(['result' => $ordersData]),
                     Response::HTTP_OK,
                     ['Content-Type' => 'application/json']
                 );
-            } else {
+            }else {
                 return new JsonResponse(
                     ['result' => 'no orders'],
                     Response::HTTP_BAD_REQUEST
@@ -82,39 +82,47 @@ class OrdersController extends AbstractController
                     Response::HTTP_BAD_REQUEST
                 );
             }
-
+    
             $result = $ordersRepository->findOneByUser($idUser, $idOrder);
-
-            if ($result == null) {
+            if (empty($result)) {
                 return new JsonResponse(
-                    ['result' => "no order"],
+                    ['result' => 'no order'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
-
-            $orderData = array_map(function ($order) {
-                return [
-                    'id'          => $order->getId(),
-                    'states'      => $order->getStates(),
-                    'userId'      => $order->getUser(),
-                    'isCreatedAt' => $order->getIsCreatedAt()
-                ];
-            }, $result); // Conversion de PersistentCollection en tableau
-
-            // Récupération des produits dans la commande
-            $products = $ordersRepository->find($idOrder)->getRowsOrders()->toArray(); // Conversion ici également
-            foreach ($products as $product) {
-                $row  = $rowsOrderRepository->findOneBy(["orders" => $idOrder, "products" => $product->getId()]);
-                $prod = $productsRepository->findOneBy(['id' => $product->getId()]);
-                if ($prod) {
-                    $orderData['products'][] = [
-                        "title"       => $prod->getTitle(),
-                        "description" => $prod->getDescription(),
-                        "amount"      => $row->getAmount(),
-                        "price"       => $row->getPrice()
+    
+            $order = $ordersRepository->find($idOrder);
+            if (!$order) {
+                return new JsonResponse(
+                    ['result' => 'order not found'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+    
+            $orderData = array_map(function ($order) use ($productsRepository, $rowsOrderRepository, $idOrder) {
+                $productsData = [];
+                foreach ($order->getRowsOrders() as $rowOrder) {
+                    $product = $productsRepository->find($rowOrder->getProducts()->getId());
+                    if (!$product) {
+                        continue; // Ignorez ce produit si non trouvé
+                    }
+                    $productsData[] = [
+                        "title"       => $product->getTitle(),
+                        "description" => $product->getDescription(),
+                        "amount"      => $rowOrder->getAmount(),
+                        "price"       => $rowOrder->getPrice(),
                     ];
                 }
-            }
+    
+                return [
+                    'id'          => $order->getId(),
+                    'states'      => $order->getStates()?->getName(),
+                    'userId'      => $order->getUser()?->getId(),
+                    'isCreatedAt' => $order->getIsCreatedAt()?->format('c'),
+                    'products'    => $productsData,
+                ];
+            }, $result);
+    
             return new Response(
                 json_encode(['result' => $orderData]),
                 Response::HTTP_OK,
@@ -127,7 +135,6 @@ class OrdersController extends AbstractController
             );
         }
     }
-
 
     #[Route('/delete/{idUser}/{idOrder}', name: 'app_client_orders_delete', methods: ["DELETE"])]
     #[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
@@ -300,66 +307,86 @@ class OrdersController extends AbstractController
     }
 
     #[Route('/admin/detail/{ordersId}', name: 'app_admin_orders_detail', methods: ["GET"])]
-    #[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
-    public function detailAdmin(
-        int $ordersId,
-        OrdersRepository $ordersRepository,
-        RowsOrderRepository $rowOrdersRepository,
-        ProductsRepository $productsRepository
-    ): Response {
-        try {
-            $order = $ordersRepository->findOneBy(["id" => $ordersId]);
-            if (!$order) {
-                return new JsonResponse(
-                    ['result' => 'orders not found'],
-                    Response::HTTP_BAD_REQUEST
-                );
+#[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
+public function detailAdmin(
+    int $ordersId,
+    OrdersRepository $ordersRepository,
+    RowsOrderRepository $rowOrdersRepository,
+    ProductsRepository $productsRepository
+): Response {
+    try {
+        // Récupération de l'entité Order
+        $orderEntity = $ordersRepository->find($ordersId);
+        if (!$orderEntity) {
+            return new JsonResponse(
+                ['result' => 'Order not found'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        // Vérification des données spécifiques pour l'administration
+        $result = $ordersRepository->findOneForAdmin($ordersId);
+        if (!$result) {
+            return new JsonResponse(
+                ['result' => 'No admin data found for the order'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        // Construction des données de réponse
+        $orderData = array_map(function ($orderDto) use ($orderEntity, $rowOrdersRepository, $productsRepository) {
+            $productsData = [];
+
+            // Vérification des relations RowsOrders
+            if ($orderEntity->getRowsOrders() === null || $orderEntity->getRowsOrders()->isEmpty()) {
+                return ['error' => 'No rows orders associated with the order'];
             }
-            $result = $ordersRepository->findOneForAdmin($ordersId);
 
-            if (!$result) {
-                return new JsonResponse(
-                    ['result' => 'orders not found'],
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
-            $orderData = array_map(function ($order) {
-                return [
+            foreach ($orderEntity->getRowsOrders() as $rowOrder) {
+                // Vérification de la relation Products
+                $product = $rowOrder->getProducts();
+                if ($product === null) {
+                    continue; // Ignore les rows sans produit
+                }
 
-
-                    'id'          => $order->getId(),
-                    'isCreatedAt' => $order->getCreatedAt(),
-                    'firstName'   => $order->getFirstName(),
-                    'lastName'    => $order->getLastName(),
-                    "states"      => $order->getStates()
-                ];
-            }, $result);
-            // Récupération des produits dans la commande
-            $products = $ordersRepository->find($ordersId)->getRowsOrders()->toArray();
-            foreach ($products as $product) {
-                $row  = $rowOrdersRepository->findOneBy(["orders" => $ordersId]);
-                $prod = $productsRepository->findOneBy(['id' => $product->getProducts()]);
-                if ($prod) {
-                    $orderData['products'][] = [
-                        "title"       => $prod->getTitle(),
-                        "description" => $prod->getDescription(),
-                        "amount"      => $row->getAmount(),
-                        "price"       => $row->getPrice()
+                $productEntity = $productsRepository->find($product->getId());
+                if ($productEntity) {
+                    $productsData[] = [
+                        'title' => $productEntity->getTitle(),
+                        'description' => $productEntity->getDescription(),
+                        'amount' => $rowOrder->getAmount(),
+                        'price' => $rowOrder->getPrice(),
                     ];
                 }
             }
-            return new JsonResponse(
-                ['result' => $orderData],
-                Response::HTTP_OK
-            );
 
-        } catch (\Exception $e) {
-            return new JsonResponse(
-                ['result' => 'Database error', 'error' => $e->getMessage()],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+            // Vérification des données DTO
+            return [
+                'id' => $orderDto->id ?? null,
+                'isCreatedAt' => isset($orderDto->isCreatedAt) ? $orderDto->isCreatedAt->format('c') : null,
+                'firstName' => $orderDto->firstName ?? null,
+                'lastName' => $orderDto->lastName ?? null,
+                'states' => $orderDto->states ?? null,
+                'products' => $productsData,
+            ];
+        }, $result);
+
+        return new JsonResponse(
+            ['result' => $orderData],
+            Response::HTTP_OK
+        );
+
+    } catch (\Exception $e) {
+        // Capture et retour d'erreur détaillée
+        return new JsonResponse(
+            [
+                'result' => 'An error occurred while processing the request',
+                'error' => $e->getMessage()
+            ],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
     }
+}
 
     #[Route('/admin/states/update/{ordersId}/{statesId}', name: 'app_admin_orders_update_states', methods: ["PUT"])]
     #[IsGranted(new Expression('is_granted("ROLE_ADMIN")'))]

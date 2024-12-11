@@ -97,17 +97,21 @@ class UserController extends AbstractController
             // Rechercher l'utilisateur par son ID
             $client = $entityManager->getRepository(User::class)->find($id);
 
-            // Vérifier si l'utilisateur existe
-            if (!$client) {
-                return new JsonResponse(
-                    ['result' => 'User not found'],
-                    Response::HTTP_NOT_FOUND
-                );
-            }
+if (!$client) {
+    return new JsonResponse(
+        ['result' => 'User not found'],
+        Response::HTTP_NOT_FOUND
+    );
+}
 
-            // Décoder les données JSON envoyées dans la requête
-            $data = json_decode($request->getContent(), true);
-
+try {
+    $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+} catch (\JsonException $e) {
+    return new JsonResponse(
+        ['result' => 'Invalid JSON format'],
+        Response::HTTP_BAD_REQUEST
+    );
+}
             // Vérifier la présence des clés nécessaires dans les données JSON
             if (!$data || !isset($data['email'],
                 $data['password'],
@@ -139,12 +143,13 @@ class UserController extends AbstractController
             $client->setPhone($data['phone']);
             $client->setComment($data['comment']);
             $cities = $citiesRepository->findOneBy(["id" => $data['citiesId']]);
-            if (!$cities) {
-                return new JsonResponse(
-                    ['result' => 'Cities not found'],
-                    Response::HTTP_NOT_FOUND
-                );
-            }
+if (!$cities) {
+    return new JsonResponse(
+        ['result' => 'Cities not found'],
+        Response::HTTP_NOT_FOUND
+    );
+}
+
             $client->setCities($cities);
 
 
@@ -168,9 +173,9 @@ class UserController extends AbstractController
 
             // Persister et sauvegarder les changements
             $entityManager->flush();
-            $tokenService->regenerateToken();
+            $token = $tokenService->regenerateToken();
             return new JsonResponse(
-                ['result' => 'User updated successfully'],
+                ['result' => 'User updated successfully', 'token'=> $token],
                 Response::HTTP_OK,
                 ['Content-Type' => 'application/json']
             );
@@ -275,7 +280,7 @@ class UserController extends AbstractController
         }
     }
 
-
+/********** */
 
 
 

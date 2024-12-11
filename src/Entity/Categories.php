@@ -7,7 +7,7 @@ use App\Repository\CategoriesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CategoriesRepository::class)]
 #[ApiResource]
 class Categories
@@ -18,6 +18,9 @@ class Categories
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
+
+    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\-\_ ]{2,40}+$/')]
+    #[Assert\NotBlank()]
     private ?string $categories = null;
 
     /**

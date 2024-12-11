@@ -3,19 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Ads;
-use App\Entity\MediaObject;
 use App\Entity\Products;
+use App\Entity\MediaObject;
+use App\Service\UploadHandlerWrapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\ExpressionLanguage\Expression;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Vich\UploaderBundle\Handler\UploadHandler;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Vich\UploaderBundle\Handler\UploadHandler;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class MediaObjectController extends AbstractController
 {
@@ -26,7 +27,7 @@ class MediaObjectController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         ManagerRegistry $doctrine,
-        UploadHandler $uploadHandler
+        UploadHandlerWrapper $uploadHandler
     ): Response {
         try {
             // Récupérer l'ID de l'annonce depuis le formulaire

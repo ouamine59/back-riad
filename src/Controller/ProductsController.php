@@ -26,7 +26,14 @@ class ProductsController extends AbstractController
             $result = $productsRepository->findBy(["isActivied" => 1]);
 
             $adsData = array_map(function ($product) {
-               // $image     = $product->getMediaObjects() ;
+                $mediaObjects = $product->getMediaObjects();
+            $imagePaths = [];
+
+            // Si plusieurs media objects sont associés
+            foreach ($mediaObjects as $media) {
+                $imagePaths = $media->getFilePath(); // Assurez-vous que getFilePath() existe
+            }
+               
               //  $categorie = $categoriesRepository->findOneBy(['id' => $product->getCategories()]);
                 return [
                     'id'            => $product->getId(),
@@ -35,7 +42,7 @@ class ProductsController extends AbstractController
                     'discount'      => $product->isDiscount(),
                     "priceDiscount" => $product->getPriceDiscount(),
                     "description"   => $product->getDescription(),
-                    "image"         => $product->getMediaObjects(),
+                    "image"         => $imagePaths,
                    // "categorie"     => $categorie
                 ];
             }, $result);
@@ -133,19 +140,20 @@ class ProductsController extends AbstractController
                 );
             }
             $categorie = $categoriesRepository->find($jsonData['categoriesId']);
-            if (!$categorie) {
-                return new JsonResponse(
-                    ['result' => 'categories missing'],
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
-            $product = $productsRepository->findOneBy(['id' => $productsId]);
-            if (!$product) {
-                return new JsonResponse(
-                    ['result' => 'product none find'],
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
+if (!$categorie) {
+    return new JsonResponse(
+        ['result' => 'categories missing'],
+        Response::HTTP_BAD_REQUEST
+    );
+}
+
+$product = $productsRepository->findOneBy(['id' => $productsId]);
+if (!$product) {
+    return new JsonResponse(
+        ['result' => 'product none find'],
+        Response::HTTP_BAD_REQUEST
+    );
+}
             $product->setTitle($jsonData['title']);
             $product->setPrice($jsonData['price']);
             $product->setDiscount($jsonData['discount']);
@@ -219,10 +227,9 @@ class ProductsController extends AbstractController
             }
             $entityManager->persist($product);
             $entityManager->flush();
-            return new Response(
-                json_encode(['result' => 'State on the product updated successfully', 'id' => $product->getId()]),
-                Response::HTTP_CREATED,
-                ['Content-Type' => 'application/json']
+            return new JsonResponse(
+                ['result' => 'State on the product updated successfully', 'id' => $product->getId()],
+                Response::HTTP_CREATED
             );
         } catch (\Exception $e) {
             return new JsonResponse(['result' => 'Database error', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -238,7 +245,7 @@ class ProductsController extends AbstractController
         try {
             // Traite les données (par exemple, décoder le JSON si nécessaire)
             $result = $productsRepository->findAllForAdmin();
-            if (!$result) {
+            if (empty($result)) {
                 return new JsonResponse(
                     ['result' => 'product none find'],
                     Response::HTTP_BAD_REQUEST

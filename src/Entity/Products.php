@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductsRepository::class)]
 #[ApiResource(
@@ -53,26 +54,41 @@ class Products
 
     #[ORM\Column(length: 30)]
     #[Groups(["products:read", "products:write"])]
+    #[Assert\NotBlank]
+    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\- ]{2,80}+$/')]
+    #[Assert\NotBlank()]
     private ?string $title = null;
 
     #[ORM\Column(length: 6)]
     #[Groups(["products:read", "products:write"])]
+    #[Assert\NotBlank]
+    #[Assert\Regex('/^[0-9]{1,8}$/')]
+    #[Assert\NotBlank()]
     private ?string $price = null;
 
     #[ORM\Column]
     #[Groups(["products:read", "products:write"])]
+    #[Assert\Type(
+        type: 'bool'
+    )]
     private ?bool $discount = null;
 
     #[ORM\Column(length: 6, nullable: true)]
     #[Groups(["products:read", "products:write"])]
+    #[Assert\Regex('/^[0-9]{1,8}$/')]
     private ?string $priceDiscount = null;
 
     #[ORM\Column(length: 200, nullable: true)]
     #[Groups(["products:read", "products:write"])]
+    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\- ]{2,200}?$/')]
     private ?string $description = null;
 
     #[ORM\Column]
     #[Groups(["products:read", "products:write"])]
+    #[Assert\Type(
+        type: 'bool'
+    )]
+    #[Assert\NotBlank()]
     private ?bool $isActivied = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]

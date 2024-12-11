@@ -8,7 +8,7 @@ use App\Repository\CitiesRepository;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-
+use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CitiesRepository::class)]
 #[ApiResource(
     normalizationContext:['groups' => ['products:read']],
@@ -28,9 +28,12 @@ class Cities
     private ?int $id = null;
 
     #[ORM\Column(length: 40)]
+    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\-\_ ]{2,40}$/')]
     private ?string $cities = null;
 
     #[ORM\Column(length: 5)]
+    #[Assert\Regex('/^[0-9]{5}$/')]
+    #[Assert\Type(type:'integer')]
     private ?string $zipCode = null;
 
     #[ORM\ManyToOne(inversedBy: 'cities')]

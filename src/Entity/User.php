@@ -84,7 +84,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\Regex('/^\d+\s[A-Za-zÀ-ÖØ-öø-ÿ0-9\s,\.\-\']+$/')]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $adress = null;
 
     #[ORM\Column(length: 10)]

@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\RowsOrderRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RowsOrderRepository::class)]
 #[ApiResource]
@@ -24,10 +25,16 @@ class RowsOrder
     private ?Products $products = null;
 
     #[ORM\Column]
+    #[Assert\Type(
+        type: 'integer'
+    )]
+    #[Assert\Positive()]
     private ?int $amount = null;
 
     #[ORM\Column(length: 6)]
-    private ?string $price = null;
+    #[Assert\NotBlank]
+    #[Assert\Regex('/^[0-9]{1,8}+$/')]
+    private ?string $price = null; 
 
     public function getId(): ?int
     {

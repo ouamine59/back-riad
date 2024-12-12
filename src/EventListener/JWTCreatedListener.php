@@ -15,20 +15,20 @@ class JWTCreatedListener
         // Récupérer l'utilisateur connecté
         $user = $event->getUser();
 
-        // if ($user instanceof UserInterface) {
-        //     // Ajouter des données spécifiques au payload
-        //     $payload['email'] = $user->getEmail();
-        //     $payload['roles'] = $user->getRoles();
+        if ($user instanceof UserInterface) {
+            // Ajouter des données spécifiques au payload
+            $payload['email'] = $user->getEmail();
+            $payload['roles'] = $user->getRoles();
 
-        //     // Exemple : ajouter une donnée personnalisée
-        //     $payload['id'] = $user->getId();
-        //     $payload['firstName'] = $user->getFirstName();
-        //     $payload['lastName'] = $user->getLastName();
+            // Exemple : ajouter une donnée personnalisée
+            $payload['id'] = $user->getId();
+            $payload['firstName'] = $user->getFirstName();
+            $payload['lastName'] = $user->getLastName();
 
-        //     $payload['adress'] = $user->getAdress();
-        //     $payload['phone'] = $user->getPhone();
-        //     $payload['citiesId'] = $user->getCities();
-        // }
+            $payload['adress'] = $user->getAdress();
+            $payload['phone'] = $user->getPhone();
+            $payload['citiesId'] = $user->getCities();
+        }
 
         // Mettre à jour le payload
         $event->setData($payload);

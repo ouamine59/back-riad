@@ -19,31 +19,26 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ProductsController extends AbstractController
 {
     #[Route('/listing', name: 'app_visitor_products_listing', methods:["GET"])]
-    public function index(ProductsRepository $productsRepository, 
-    CategoriesRepository $categoriesRepository): Response
+    public function index(ProductsRepository $productsRepository): Response
     {
         try {
             $result = $productsRepository->findBy(["isActivied" => 1]);
-
             $adsData = array_map(function ($product) {
-                $mediaObjects = $product->getMediaObjects();
-            $imagePaths = [];
-
+            $mediaObjects = $product->getMediaObjects();
+            $imagePaths = []; 
             // Si plusieurs media objects sont associés
             foreach ($mediaObjects as $media) {
                 $imagePaths = $media->getFilePath(); // Assurez-vous que getFilePath() existe
             }
                
-              //  $categorie = $categoriesRepository->findOneBy(['id' => $product->getCategories()]);
-                return [
+               return [
                     'id'            => $product->getId(),
                     'title'         => $product->getTitle(),
                     'price'         => $product->getPrice(),
                     'discount'      => $product->isDiscount(),
                     "priceDiscount" => $product->getPriceDiscount(),
                     "description"   => $product->getDescription(),
-                    "image"         => $imagePaths,
-                   // "categorie"     => $categorie
+                    "image"         => $imagePaths
                 ];
             }, $result);
             if ($result) {

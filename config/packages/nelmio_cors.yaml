@@ -1,10 +1,16 @@
 nelmio_cors:
     defaults:
-        origin_regex: true
-        allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
-        allow_headers: ['Content-Type', 'Authorization']
+        allow_origin: ['http://localhost:3000'] # Frontend React
+        allow_headers: ['Content-Type', 'Authorization', 'Accept']
+        allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
         expose_headers: ['Link']
         max_age: 3600
+        hosts: []
+        origin_regex: false
+        forced_allow_origin_value: null
     paths:
-        '^/': null
+        '^/api/': # Chemins ciblés par CORS
+            allow_origin: ['http://localhost:3000']
+            allow_headers: ['Content-Type', 'Authorization', 'Accept']
+            allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+            max_age: 3600

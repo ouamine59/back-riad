@@ -9,6 +9,7 @@ use App\Repository\ProductsRepository;
 use App\Repository\RowsOrderRepository;
 use App\Repository\StatesRepository;
 use App\Repository\UserRepository;
+use App\Tests\Entity\UserTest;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,10 +26,10 @@ class OrdersController extends AbstractController
 {
     #[Route('/listing/{idUser}', name: 'app_client_orders_listing')]
     #[IsGranted(new Expression('is_granted("ROLE_CLIENT")'))]
-    public function index(int $idUser, OrdersRepository $ordersRepository): Response
+    public function index(int $idUser, OrdersRepository $ordersRepository, UserRepository $userRepository): Response
     {
         try {
-            $user = $ordersRepository->find($idUser);
+            $user = $userRepository->find($idUser);
             if ($user === null) { // Vérifie si aucun utilisateur n'est trouvé
                 return new JsonResponse(
                     ['result' => "no user"],
@@ -75,62 +76,53 @@ class OrdersController extends AbstractController
         RowsOrderRepository $rowsOrderRepository
     ): Response {
         try {
-            $user = $ordersRepository->findOneBy(["user" => $idUser]);
+            // Vérifier si l'utilisateur existe
+            $user = $ordersRepository->findOneBy(['user' => $idUser]);
             if (!$user) {
                 return new JsonResponse(
-                    ['result' => 'no user'],
+                    ['result' => 'no user found'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
     
-            $result = $ordersRepository->findOneByUser($idUser, $idOrder);
-            if (empty($result)) {
-                return new JsonResponse(
-                    ['result' => 'no order'],
-                    Response::HTTP_BAD_REQUEST
-                );
-            }
-    
-            $order = $ordersRepository->find($idOrder);
+            // Récupérer la commande associée à l'utilisateur
+            $order = $ordersRepository->findOneByUser($idUser, $idOrder);
             if (!$order) {
                 return new JsonResponse(
-                    ['result' => 'order not found'],
+                    ['result' => 'no order found'],
                     Response::HTTP_BAD_REQUEST
                 );
             }
     
-            $orderData = array_map(function ($order) use ($productsRepository, $rowsOrderRepository, $idOrder) {
-                $productsData = [];
-                foreach ($order->getRowsOrders() as $rowOrder) {
-                    $product = $productsRepository->find($rowOrder->getProducts()->getId());
-                    if (!$product) {
-                        continue; // Ignorez ce produit si non trouvé
-                    }
-                    $productsData[] = [
-                        "title"       => $product->getTitle(),
-                        "description" => $product->getDescription(),
-                        "amount"      => $rowOrder->getAmount(),
-                        "price"       => $rowOrder->getPrice(),
+            // Récupérer les produits associés à la commande
+            $rows = $rowsOrderRepository->findAll(['orders' => $idOrder]);
+            
+            foreach ($rows as $row) {
+
+                $product = $productsRepository->findOneBy(['id' => $row->getProducts()]);
+                if ($product) {
+                    $order["products"][] = [
+                        'id' => $product->getId(),
+                        'name' => $product->getTitle(), 
+                        'price' => $product->getPrice(), 
+                        "quantity"=> $row->getAmount()
                     ];
                 }
+            }
     
-                return [
-                    'id'          => $order->getId(),
-                    'states'      => $order->getStates()?->getName(),
-                    'userId'      => $order->getUser()?->getId(),
-                    'isCreatedAt' => $order->getIsCreatedAt()?->format('c'),
-                    'products'    => $productsData,
-                ];
-            }, $result);
+            // Construire le résultat
+            
     
-            return new Response(
-                json_encode(['result' => $orderData]),
-                Response::HTTP_OK,
-                ['Content-Type' => 'application/json']
+            return new JsonResponse(
+                ['result' => $order],
+                Response::HTTP_OK
             );
         } catch (\Exception $e) {
             return new JsonResponse(
-                ['result' => 'Database error', 'error' => $e->getMessage()],
+                [
+                    'result' => 'Database error',
+                    'error' => $e->getMessage()
+                ],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }

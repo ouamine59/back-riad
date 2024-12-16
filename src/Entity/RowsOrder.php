@@ -27,13 +27,14 @@ class RowsOrder
     #[ORM\Column]
     #[Assert\Type(
         type: 'integer'
+        ,message:"amount.type"
     )]
-    #[Assert\Positive()]
+    #[Assert\Positive(message:"amount.positive")]
     private ?int $amount = null;
 
     #[ORM\Column(length: 6)]
-    #[Assert\NotBlank]
-    #[Assert\Regex('/^[0-9]{1,8}+$/')]
+    #[Assert\NotBlank(message:"price.blank")]
+    #[Assert\Regex('/^[0-9]{1,8}+$/',message:"price.regex")]
     private ?string $price = null; 
 
     public function getId(): ?int

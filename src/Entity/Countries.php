@@ -18,8 +18,9 @@ class Countries
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Assert\Regex('/^[a-zA-ZÀ-ÖØ-öø-ÿ\-\_ ]{2,50}$/')]
-    #[Assert\NotBlank()]
+    #[Assert\Regex('/^[a-zA-ZÀ-ÖØ-öø-ÿ\-\_ ]{2,50}$/',
+    message:"countries.regex")]
+    #[Assert\NotBlank(message:"countries.blank")]
     private ?string $countries = null;
 
     /**

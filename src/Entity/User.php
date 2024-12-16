@@ -52,7 +52,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\Email]
+    #[Assert\Email(message:"email")]
     private ?string $email = null;
 
     /**
@@ -68,29 +68,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Groups(['user:write'])]
     #[Assert\PasswordStrength([
-        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG, // Very strong password required
+        
+        'minScore' => PasswordStrength::STRENGTH_VERY_STRONG,
     ])]
     private ?string $password = null;
 
     #[ORM\Column(length: 80)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\Regex('/^[a-zA-Z\-]{2,80}$/')]
+    #[Assert\Regex('/^[a-zA-Z\-]{2,80}$/', message:"firstName.regex")]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 80)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\Regex('/^[a-zA-Z\-]{2,80}$/')]
+    #[Assert\Regex('/^[a-zA-Z\-]{2,80}$/', message:"lastName.regex")]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Regex('/^\d+\s+[a-zA-ZÀ-ÿ0-9,\.\-\s\']{2,}$/', message:"adress.regex")]
     private ?string $adress = null;
 
     #[ORM\Column(length: 10)]
     #[Groups(['user:read','user:write'])]
-    #[Assert\Regex('/^\d{10}$/')]
+    #[Assert\Regex('/^\d{10}$/',message:"phone.regex")]
     private ?string $phone = null;
 
     #[ORM\Column]
@@ -99,6 +99,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['user:read','user:write'])]
+    #[Assert\Regex('/^.{0,255}$/',message:"comment.regex")]
     private ?string $comment = null;
 
     /**

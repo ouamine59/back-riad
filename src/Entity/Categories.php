@@ -19,8 +19,8 @@ class Categories
 
     #[ORM\Column(length: 40)]
 
-    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\-\_ ]{2,40}+$/')]
-    #[Assert\NotBlank()]
+    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\-\_ ]{2,40}+$/',message:"categories.regex")]
+    #[Assert\NotBlank(message:"categories.blank")]
     private ?string $categories = null;
 
     /**

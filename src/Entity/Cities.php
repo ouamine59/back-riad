@@ -32,8 +32,8 @@ class Cities
     private ?string $cities = null;
 
     #[ORM\Column(length: 5)]
-    #[Assert\Regex('/^[0-9]{5}$/')]
-    #[Assert\Type(type:'integer')]
+    #[Assert\Regex('/^[0-9]{5}$/',message:"zipCode.regex")]
+    #[Assert\Type(type:'integer',message:"zipCode.type")]
     private ?string $zipCode = null;
 
     #[ORM\ManyToOne(inversedBy: 'cities')]

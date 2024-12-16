@@ -20,8 +20,8 @@ class States
 
     #[ORM\Column(length: 20)]
 
-    #[Assert\Regex('/^[a-zA-Z ]{1,20}$/')]
-    #[Assert\NotBlank()]
+    #[Assert\Regex('/^[a-zA-Z ]{1,20}$/',message:"states.regex")]
+    #[Assert\NotBlank(message:"states.blank")]
     private ?string $states = null;
 
     /**

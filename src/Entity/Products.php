@@ -55,40 +55,45 @@ class Products
     #[ORM\Column(length: 30)]
     #[Groups(["products:read", "products:write"])]
     #[Assert\NotBlank]
-    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\- ]{2,80}+$/')]
-    #[Assert\NotBlank()]
+    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\- ]{2,80}+$/',
+    message:"title.regex")]
+    #[Assert\NotBlank(message:"title.blank")]
     private ?string $title = null;
 
     #[ORM\Column(length: 6)]
     #[Groups(["products:read", "products:write"])]
-    #[Assert\NotBlank]
-    #[Assert\Regex('/^[0-9]{1,8}$/')]
-    #[Assert\NotBlank()]
+    #[Assert\NotBlank(message:"price.blank")]
+    #[Assert\Regex('/^[0-9]{1,8}$/',message:"price.regex")]
+    #[Assert\NotBlank(message:"price.blank")]
     private ?string $price = null;
 
     #[ORM\Column]
     #[Groups(["products:read", "products:write"])]
     #[Assert\Type(
         type: 'bool'
+        ,message:"discount.type"
     )]
     private ?bool $discount = null;
 
     #[ORM\Column(length: 6, nullable: true)]
     #[Groups(["products:read", "products:write"])]
-    #[Assert\Regex('/^[0-9]{1,8}$/')]
+    #[Assert\Regex('/^[0-9]{0,8}$/',
+    message:"priceDiscount.regex")]
     private ?string $priceDiscount = null;
 
     #[ORM\Column(length: 200, nullable: true)]
     #[Groups(["products:read", "products:write"])]
-    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\- ]{2,200}?$/')]
+    #[Assert\Regex('/^[a-zA-Z0-9À-ÖØ-öø-ÿ\- ]{2,200}?$/',
+    message:"description.regex")]
     private ?string $description = null;
 
     #[ORM\Column]
     #[Groups(["products:read", "products:write"])]
     #[Assert\Type(
         type: 'bool'
+        ,message:"isActivied.type"
     )]
-    #[Assert\NotBlank()]
+    #[Assert\NotBlank(message:"isActivied.blank")]
     private ?bool $isActivied = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]

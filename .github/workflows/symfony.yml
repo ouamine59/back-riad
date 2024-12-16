@@ -7,9 +7,9 @@ name: Symfony
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "back-17-login" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "back-17-login" ]
 
 permissions:
   contents: read

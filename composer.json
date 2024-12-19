@@ -1,4 +1,6 @@
 {
+    "name": "vendor/project-name",
+    "description": "A Symfony project leveraging API Platform and JWT authentication.",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",

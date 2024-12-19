@@ -2,14 +2,27 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Get;
+use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\CategoriesRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CategoriesRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext:['groups' => ['categories:read']],
+    denormalizationContext:['groups' => ['categories:write']],
+    operations: [
+        new Get(
+            description: 'Enregistre un nouveau client.',
+            uriTemplate: '/api/categories/select',
+            name:'app_categories_select',
+        ),
+
+
+    ]
+)]
 class Categories
 {
     #[ORM\Id]
